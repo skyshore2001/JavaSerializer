@@ -69,6 +69,14 @@ namespace JavaSerializer
                     var objectContent = new ObjectContent(contentType);
                     ReadObject(objectContent);
                     parsedData = objectContent;
+					var c = _reader.PeekChar();
+                    if (c == (byte)TokenType.TC_BLOCKDATA)
+					{
+						while (ReadContent<IContent>(out var ct, false) && ct != null && ct.Header != TokenType.TC_ENDBLOCKDATA)
+						{
+							objectContent.Annotations.Add(ct);
+						}
+					}
                     break;
                 case TokenType.TC_CLASS: // done
                     var classContent = new ClassContent(contentType);
@@ -187,8 +195,8 @@ namespace JavaSerializer
                     {
                         FieldType.Byte => _reader.ReadByte(),
                         FieldType.Char => _reader.ReadChar(),
-                        FieldType.Double => _reader.ReadDouble(),
-                        FieldType.Float => _reader.ReadSingle(),
+                        FieldType.Double => ReverseByte(_reader.ReadDouble()),
+                        FieldType.Float => ReverseByte(_reader.ReadSingle()),
                         FieldType.Integer => _reader.ReadInt32BE(),
                         FieldType.Long => _reader.ReadInt64BE(),
                         FieldType.Short => _reader.ReadInt16BE(),
@@ -209,6 +217,32 @@ namespace JavaSerializer
                 }
             }
         }
+
+        // n=2,4,8
+        public static unsafe void ReverseByte(byte *p, int n)
+		{
+            for (int i=0; i<n/2; ++i)
+			{
+                byte c = p[i];
+                p[i] = p[n - i - 1];
+                p[n - i - 1] = c;
+			}
+		}
+        public static unsafe double ReverseByte(double v)
+		{
+            ReverseByte((byte*)&v, sizeof(double));
+            return v;
+		}
+        public static unsafe float ReverseByte(float v)
+		{
+            ReverseByte((byte*)&v, sizeof(float));
+            return v;
+		}
+        public static unsafe int ReverseByte(int v)
+		{
+            ReverseByte((byte*)&v, sizeof(int));
+            return v;
+		}
 
         private void ReadObject(ObjectContent content)
         {

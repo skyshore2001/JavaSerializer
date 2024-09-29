@@ -33,14 +33,17 @@ namespace JavaSerializer
             return (TokenType)contentHeader;
         }
 
-        public static ClassDescFlag ReadClassDescFlags(this BinaryReader reader)
+        public static byte ReadClassDescFlags(this BinaryReader reader)
         {
             var contentHeader = reader.ReadByte();
+			return contentHeader;
+			/* NOTE: flags may have more than one flag. e.g. 0x3=0x1|0x2
             if (!Enum.IsDefined(typeof(ClassDescFlag), contentHeader))
             {
                 throw new InvalidDataException($"An incorrect {nameof(ClassDescFlag)} has been parsed: value is 0x{contentHeader:X2}.");
             }
             return (ClassDescFlag)contentHeader;
+			*/
         }
 
         public static FieldType ReadFieldType(this BinaryReader reader)

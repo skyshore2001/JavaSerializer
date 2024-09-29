@@ -1,5 +1,10 @@
 using JavaSerializer.Content.Object;
 using JavaSerializer.Content.Object.Inteface;
+using NUnit.Framework;
+using System;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 
 namespace JavaSerializerTests
 {

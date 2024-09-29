@@ -16,7 +16,7 @@ namespace JavaSerializer.Content.Object.ClassDesc
         public TokenType Header { get; }
         public string? ClassName { get; set; }
         public ulong SerialVersionUID { get; set; }
-        public ClassDescFlag? ClassDescFlag { get; set; }
+        public byte? ClassDescFlag { get; set; }
         public IList<IClassField>? Fields { get; set; }
         public IList<IContent>? Annotations { get; set; }
         public IClassDescriptor? ClassDescriptor { get; set; }
