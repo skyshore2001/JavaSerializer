@@ -257,8 +257,8 @@ namespace JavaSerializer
                     {
                         FieldType.Byte => _reader.ReadByte(),
                         FieldType.Char => _reader.ReadChar(),
-                        FieldType.Double => _reader.ReadDouble(),
-                        FieldType.Float => _reader.ReadSingle(),
+						FieldType.Double => ReverseByte(_reader.ReadDouble()),
+						FieldType.Float => ReverseByte(_reader.ReadSingle()),
                         FieldType.Integer => _reader.ReadInt32BE(),
                         FieldType.Long => _reader.ReadInt64BE(),
                         FieldType.Short => _reader.ReadInt16BE(),

@@ -42,13 +42,14 @@ namespace JavaSerializerTests
             Assert.That(content, Is.InstanceOf<ArrayContent>());
 
             var typedContent = (ArrayContent)content;
-            Assert.That(typedContent.Data, Is.Not.Null);
+            Assert.That(typedContent.Data, Is.TypeOf<int[]>());
+			var data = (int[])typedContent.Data;
+            Assert.That(data, Is.Not.Null);
             Assert.Multiple(() =>
             {
                 Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
-                Assert.That(typedContent.Data, Has.Length.EqualTo(1));
-                Assert.That(typedContent.Data[0], Is.InstanceOf<int>());
-                Assert.That(typedContent.Data[0], Is.EqualTo(2001));
+                Assert.That(data, Has.Length.EqualTo(1));
+                Assert.That(data[0], Is.EqualTo(2001));
             });
         }
 
@@ -68,15 +69,17 @@ namespace JavaSerializerTests
             Assert.That(content, Is.InstanceOf<ArrayContent>());
 
             var typedContent = (ArrayContent)content;
-            Assert.That(typedContent.Data, Is.Not.Null);
-            Assert.Multiple(() =>
+            Assert.That(typedContent.Data, Is.TypeOf<int[]>());
+			int[] data = (int[])typedContent.Data;
+            Assert.That(data, Is.Not.Null);
+			Assert.Multiple(() =>
             {
-                Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
-                Assert.That(typedContent.Data, Has.Length.EqualTo(2));
-                Assert.That(typedContent.Data[0], Is.InstanceOf<int>());
-                Assert.That(typedContent.Data[1], Is.InstanceOf<int>());
-                Assert.That(typedContent.Data[0], Is.EqualTo(2001));
-                Assert.That(typedContent.Data[1], Is.EqualTo(2002));
+				Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
+				Assert.That(data, Has.Length.EqualTo(2));
+				Assert.That(data[0], Is.InstanceOf<int>());
+				Assert.That(data[1], Is.InstanceOf<int>());
+				Assert.That(data[0], Is.EqualTo(2001));
+				Assert.That(data[1], Is.EqualTo(2002));
             });
         }
 
@@ -96,17 +99,19 @@ namespace JavaSerializerTests
             Assert.That(content, Is.InstanceOf<ArrayContent>());
 
             var typedContent = (ArrayContent)content;
-            Assert.That(typedContent.Data, Is.Not.Null);
+            Assert.That(typedContent.Data, Is.TypeOf<object[]>());
+			var data = (object[])typedContent.Data;
+            Assert.That(data, Is.Not.Null);
             Assert.Multiple(() =>
             {
                 Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
-                Assert.That(typedContent.Data, Has.Length.EqualTo(3));
-                Assert.That(typedContent.Data[0], Is.InstanceOf<IString>());
-                Assert.That(typedContent.Data[1], Is.InstanceOf<IString>());
-                Assert.That(typedContent.Data[2], Is.InstanceOf<IString>());
+                Assert.That(data, Has.Length.EqualTo(3));
+                Assert.That(data[0], Is.InstanceOf<IString>());
+                Assert.That(data[1], Is.InstanceOf<IString>());
+                Assert.That(data[2], Is.InstanceOf<IString>());
             });
 
-            var typedEntries = typedContent.Data.OfType<IString>().ToImmutableArray();
+            var typedEntries = data.OfType<IString>().ToImmutableArray();
 
             Assert.Multiple(() =>
             {
@@ -133,17 +138,19 @@ namespace JavaSerializerTests
             Assert.That(content, Is.InstanceOf<ArrayContent>());
 
             var typedContent = (ArrayContent)content;
-            Assert.That(typedContent.Data, Is.Not.Null);
+            Assert.That(typedContent.Data, Is.TypeOf<object[]>());
+            var data = (object[])typedContent.Data;
+            Assert.That(data, Is.Not.Null);
             Assert.Multiple(() =>
             {
                 Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
                 Assert.That(typedContent.Data, Has.Length.EqualTo(3));
-                Assert.That(typedContent.Data[0], Is.InstanceOf<ObjectContent>());
-                Assert.That(typedContent.Data[1], Is.InstanceOf<ObjectContent>());
-                Assert.That(typedContent.Data[2], Is.InstanceOf<ObjectContent>());
+                Assert.That(data[0], Is.InstanceOf<ObjectContent>());
+                Assert.That(data[1], Is.InstanceOf<ObjectContent>());
+                Assert.That(data[2], Is.InstanceOf<ObjectContent>());
             });
 
-            var typedEntries = typedContent.Data.OfType<ObjectContent>().ToImmutableArray();
+            var typedEntries = data.OfType<ObjectContent>().ToImmutableArray();
 
             Assert.Multiple(() =>
             {
@@ -162,9 +169,9 @@ namespace JavaSerializerTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntries[0].Values?.Keys.Single().Name, Is.EqualTo("value"));
-                Assert.That(typedEntries[1].Values?.Keys.Single().Name, Is.EqualTo("value"));
-                Assert.That(typedEntries[2].Values?.Keys.Single().Name, Is.EqualTo("value"));
+                Assert.That(typedEntries[0].Values?.Keys.Single(), Is.EqualTo("value"));
+                Assert.That(typedEntries[1].Values?.Keys.Single(), Is.EqualTo("value"));
+                Assert.That(typedEntries[2].Values?.Keys.Single(), Is.EqualTo("value"));
             });
 
             Assert.Multiple(() =>
@@ -174,22 +181,20 @@ namespace JavaSerializerTests
                 Assert.That(typedEntries[2].Values?.Values.Single(), Is.EqualTo(3));
             });
 
-            Assert.That(typedEntries[0].Fields, Contains.Key("value"));
-
-            var valueField = typedEntries[0].Fields["value"];
+            Assert.That(typedEntries[0].Values, Contains.Key("value"));
 
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntries[0].Values, Contains.Key(valueField));
-                Assert.That(typedEntries[1].Values, Contains.Key(valueField));
-                Assert.That(typedEntries[2].Values, Contains.Key(valueField));
+                Assert.That(typedEntries[0].Values, Contains.Key("value"));
+                Assert.That(typedEntries[1].Values, Contains.Key("value"));
+                Assert.That(typedEntries[2].Values, Contains.Key("value"));
             });
 
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntries[0].Values[valueField], Is.EqualTo(1));
-                Assert.That(typedEntries[1].Values[valueField], Is.EqualTo(2));
-                Assert.That(typedEntries[2].Values[valueField], Is.EqualTo(3));
+                Assert.That(typedEntries[0].Values["value"], Is.EqualTo(1));
+                Assert.That(typedEntries[1].Values["value"], Is.EqualTo(2));
+                Assert.That(typedEntries[2].Values["value"], Is.EqualTo(3));
             });
         }
 
@@ -209,15 +214,17 @@ namespace JavaSerializerTests
             Assert.That(content, Is.InstanceOf<ArrayContent>());
 
             var typedContent = (ArrayContent)content;
-            Assert.That(typedContent.Data, Is.Not.Null);
+            Assert.That(typedContent.Data, Is.TypeOf<object[]>());
+            var data = (object[])typedContent.Data;
+            Assert.That(data, Is.Not.Null);
             Assert.Multiple(() =>
             {
                 Assert.That(typedContent.ClassDescriptor, Is.Not.Null);
                 Assert.That(typedContent.Data, Has.Length.EqualTo(1));
-                Assert.That(typedContent.Data[0], Is.InstanceOf<ObjectContent>());
+                Assert.That(data[0], Is.InstanceOf<ObjectContent>());
             });
 
-            var typedEntry = typedContent.Data.OfType<ObjectContent>().Single();
+            var typedEntry = data.OfType<ObjectContent>().Single();
 
             Assert.Multiple(() =>
             {
@@ -229,9 +236,9 @@ namespace JavaSerializerTests
 
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntry.Values.Keys.ElementAt(0).Name, Is.EqualTo("yearwritten"));
-                Assert.That(typedEntry.Values.Keys.ElementAt(1).Name, Is.EqualTo("author"));
-                Assert.That(typedEntry.Values.Keys.ElementAt(2).Name, Is.EqualTo("subject"));
+                Assert.That(typedEntry.Values.Keys.ElementAt(0), Is.EqualTo("yearwritten"));
+                Assert.That(typedEntry.Values.Keys.ElementAt(1), Is.EqualTo("author"));
+                Assert.That(typedEntry.Values.Keys.ElementAt(2), Is.EqualTo("subject"));
             });
 
             Assert.Multiple(() =>
@@ -249,37 +256,24 @@ namespace JavaSerializerTests
                 Assert.That(strings[1].FinalString, Is.EqualTo("Test_Sub1"));
             });
 
-            Assert.That(typedEntry.Fields, Is.Not.Null);
-
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntry.Fields, Contains.Key("yearwritten"));
-                Assert.That(typedEntry.Fields, Contains.Key("author"));
-                Assert.That(typedEntry.Fields, Contains.Key("subject"));
-            });
-
-            var yearField = typedEntry.Fields["yearwritten"];
-            var authorField = typedEntry.Fields["author"];
-            var subjectField = typedEntry.Fields["subject"];
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(typedEntry.Values, Contains.Key(yearField));
-                Assert.That(typedEntry.Values, Contains.Key(authorField));
-                Assert.That(typedEntry.Values, Contains.Key(subjectField));
+                Assert.That(typedEntry.Values, Contains.Key("yearwritten"));
+                Assert.That(typedEntry.Values, Contains.Key("author"));
+                Assert.That(typedEntry.Values, Contains.Key("subject"));
             });
 
             Assert.Multiple(() =>
             {
-                Assert.That(typedEntry.Values[yearField], Is.EqualTo(2001));
-                Assert.That(typedEntry.Values[authorField], Is.InstanceOf<IString>());
-                Assert.That(typedEntry.Values[subjectField], Is.InstanceOf<IString>());
+                Assert.That(typedEntry.Values["yearwritten"], Is.EqualTo(2001));
+                Assert.That(typedEntry.Values["author"], Is.InstanceOf<IString>());
+                Assert.That(typedEntry.Values["subject"], Is.InstanceOf<IString>());
             });
 
             Assert.Multiple(() =>
             {
-                Assert.That(((IString)typedEntry.Values[authorField]).FinalString, Is.EqualTo("Test_Auth1"));
-                Assert.That(((IString)typedEntry.Values[subjectField]).FinalString, Is.EqualTo("Test_Sub1"));
+                Assert.That(((IString)typedEntry.Values["author"]).FinalString, Is.EqualTo("Test_Auth1"));
+                Assert.That(((IString)typedEntry.Values["subject"]).FinalString, Is.EqualTo("Test_Sub1"));
             });
         }
     }
