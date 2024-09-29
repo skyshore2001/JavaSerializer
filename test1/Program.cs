@@ -29,19 +29,19 @@ namespace test1
 		{
 			var res = new Data1();
 			object v = null;
-			v = obj.Values[obj.Fields["ival"]];
+			v = obj.Values["ival"];
 			res.ival = (int)v;
-			v = obj.Values[obj.Fields["name"]];
+			v = obj.Values["name"];
 			res.name = (v as UtfStringContent).String;
-			v = obj.Values[obj.Fields["buf"]];
+			v = obj.Values["buf"];
 			res.buf = ReadArr<byte>(v as ArrayContent);
-			v = obj.Values[obj.Fields["doubleArr"]];
+			v = obj.Values["doubleArr"];
 			res.doubleArr = ReadArr<double>(v as ArrayContent);
-			v = obj.Values[obj.Fields["X"]];
+			v = obj.Values["X"];
 			res.X = ReadArrList<int>(v as ObjectContent);
-			v = obj.Values[obj.Fields["Y"]];
+			v = obj.Values["Y"];
 			res.Y = ReadArrList<float>(v as ObjectContent);
-			v = obj.Values[obj.Fields["map"]];
+			v = obj.Values["map"];
 			res.map = ReadMap<bool>(v as ObjectContent);
 			return res;
 		}
@@ -72,12 +72,12 @@ namespace test1
 				var v1 = v.Annotations[i + 1];
 				if (v1 is ObjectContent v2)
 				{
-					res.Add(k.String, (T)v2.Values[v2.Fields["value"]]);
+					res.Add(k.String, (T)v2.Values["value"]);
 				}
 				else if (v1 is JavaSerializer.Content.Object.Extensions.FreeReference v3)
 				{
 					var v4 = v3.PointerValue as ObjectContent;
-					res.Add(k.String, (T)v4.Values[v4.Fields["value"]]);
+					res.Add(k.String, (T)v4.Values["value"]);
 				}
 			}
 			return res;

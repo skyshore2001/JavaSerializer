@@ -253,7 +253,7 @@ namespace JavaSerializer
             {
                 if(field is PrimitiveField primitiveField)
                 {
-                    content.Values[primitiveField] = primitiveField.Type switch
+                    content.Values[field.Name] = primitiveField.Type switch
                     {
                         FieldType.Byte => _reader.ReadByte(),
                         FieldType.Char => _reader.ReadChar(),
@@ -272,15 +272,13 @@ namespace JavaSerializer
                     _ = ReadContent<IContent>(out var resultingObject, true, TokenType.TC_NULL, TokenType.TC_REFERENCE, TokenType.TC_ARRAY, TokenType.TC_OBJECT, TokenType.TC_LONGSTRING, TokenType.TC_STRING);
                     if (resultingObject is null) throw new EndOfStreamException();
 
-                    content.Values[objectField] = resultingObject;
+                    content.Values[field.Name] = resultingObject;
                 }
                 else
                 {
                     throw new InvalidDataException("The provided object is not valid (unknown field type)");
                 }
             }
-
-            content.GenerateFieldMapping();
         }
 
         private IReadOnlyList<IClassField> GetClassFieldsFromClassDescriptor(IClassDescriptor? classDescriptorOrPointer)
