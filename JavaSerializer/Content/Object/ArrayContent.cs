@@ -12,6 +12,6 @@ namespace JavaSerializer.Content.Object
 
         public TokenType Header { get; }
         public IClassDescriptor? ClassDescriptor { get; set; }
-        public object[]? Data { get; set; }
+        public object Data { get; set; }
     }
 }

@@ -164,14 +164,21 @@ namespace JavaSerializer
             return classDescriptor;
         }
 
+        private T[] ReadArray<T>(int size, Func<T> readFn)
+		{
+            var res = new T[size];
+			for (int i = 0; i < size; i++)
+			{
+                res[i] = readFn();
+			}
+            return res;
+		}
         private void ReadArray(ArrayContent content)
         {
             var classDescriptor = ReadClassDescriptor(content);
             _handleMapping.Add(content);
 
             int size = _reader.ReadInt32BE();
-            content.Data = new object[size];
-
             while (classDescriptor?.Header == TokenType.TC_REFERENCE && classDescriptor is ClassDescriptorReference reference)
             {
                 classDescriptor = reference.Value;
@@ -182,40 +189,33 @@ namespace JavaSerializer
 
             if (classDescriptor?.Header != TokenType.TC_CLASSDESC || classDescriptor is not ClassDescriptorContent finalClassDescriptor) throw new InvalidDataException($"The object is not a class descriptor but a {classDescriptor?.Header}.");
 
-            if(finalClassDescriptor.ClassName?.Length == 2 && finalClassDescriptor.ClassName[0] == (byte)FieldType.Array)
+            FieldType fieldType = FieldType.None;
+            if (finalClassDescriptor.ClassName?.Length == 2 && finalClassDescriptor.ClassName[0] == (byte)FieldType.Array)
             {
                 var fieldTypeValue = (byte)finalClassDescriptor.ClassName[1];
                 if (!Enum.IsDefined(typeof(FieldType), fieldTypeValue)) throw new InvalidDataException($"Unknown field type: {finalClassDescriptor.ClassName}");
-
-                var fieldType = (FieldType)fieldTypeValue;
-
-                for (int i = 0; i < size; i++)
-                {
-                    content.Data[i] = fieldType switch
-                    {
-                        FieldType.Byte => _reader.ReadByte(),
-                        FieldType.Char => _reader.ReadChar(),
-                        FieldType.Double => ReverseByte(_reader.ReadDouble()),
-                        FieldType.Float => ReverseByte(_reader.ReadSingle()),
-                        FieldType.Integer => _reader.ReadInt32BE(),
-                        FieldType.Long => _reader.ReadInt64BE(),
-                        FieldType.Short => _reader.ReadInt16BE(),
-                        FieldType.Boolean => _reader.ReadBoolean(),
-                        FieldType.Array or FieldType.Object => throw new InvalidDataException($"A {fieldType} is not a primitive field type."),
-                        _ => throw new InvalidDataException($"Unknown value provided ({fieldType})")
-                    };
-                }
+                fieldType = (FieldType)fieldTypeValue;
             }
-            else
-            {
-                for(int i = 0; i < size; i++)
-                {
+
+			content.Data = fieldType switch
+			{
+				FieldType.Byte => ReadArray<byte>(size, () => _reader.ReadByte()),
+				FieldType.Char => ReadArray<char>(size, () => _reader.ReadChar()),
+				FieldType.Double => ReadArray<double>(size, () => ReverseByte(_reader.ReadDouble())),
+				FieldType.Float => ReadArray<float>(size, () => ReverseByte(_reader.ReadSingle())),
+				FieldType.Integer => ReadArray(size, () => _reader.ReadInt32BE()),
+				FieldType.Long => ReadArray<long>(size, () => _reader.ReadInt64BE()),
+				FieldType.Short => ReadArray<short>(size, () => _reader.ReadInt16BE()),
+				FieldType.Boolean => ReadArray<bool>(size, () => _reader.ReadBoolean()),
+				FieldType.None => ReadArray<object>(size, () =>
+				{
                     _ = ReadContent<IContent>(out var resultingObject, true, TokenType.TC_NULL, TokenType.TC_REFERENCE, TokenType.TC_ARRAY, TokenType.TC_OBJECT, TokenType.TC_STRING, TokenType.TC_LONGSTRING);
                     if (resultingObject is null) throw new EndOfStreamException();
-
-                    content.Data[i] = resultingObject;
-                }
-            }
+                    return resultingObject;
+				}),
+				FieldType.Array or FieldType.Object => throw new InvalidDataException($"A {fieldType} is not a primitive field type."),
+				_ => throw new InvalidDataException($"Unknown value provided ({fieldType})")
+			};
         }
 
         // n=2,4,8

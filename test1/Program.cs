@@ -34,9 +34,9 @@ namespace test1
 			v = obj.Values["name"];
 			res.name = (v as UtfStringContent).String;
 			v = obj.Values["buf"];
-			res.buf = ReadArr<byte>(v as ArrayContent);
+			res.buf = (byte[])(v as ArrayContent).Data;
 			v = obj.Values["doubleArr"];
-			res.doubleArr = ReadArr<double>(v as ArrayContent);
+			res.doubleArr = (double[])(v as ArrayContent).Data;
 			v = obj.Values["X"];
 			res.X = ReadArrList<int>(v as ObjectContent);
 			v = obj.Values["Y"];
@@ -45,10 +45,6 @@ namespace test1
 			res.map = ReadMap<bool>(v as ObjectContent);
 			return res;
 		}
-		static T[] ReadArr<T>(ArrayContent arr)
-		{
-			return Array.ConvertAll(arr.Data, e => (T)e);
-		}
 		static List<T[]> ReadArrList<T>(ObjectContent v)
 		{
 			var res = new List<T[]>();
@@ -56,7 +52,7 @@ namespace test1
 			cnt = JavaSerializer.SerializedStreamReader.ReverseByte(cnt);
 			for (int i=1; i<=cnt; ++i)
 			{
-				var arr = ReadArr<T>(v.Annotations[i] as ArrayContent);
+				var arr = (T[])(v.Annotations[i] as ArrayContent).Data;
 				res.Add(arr);
 			}
 			return res;
